@@ -11,4 +11,4 @@
 
 <br>
 <h3><b>TODO Information</b></h3>
-<ul>-Add support for onboard tachometer.<br>-Create conditional colored display boxes<br>-Make coloring a changable class value.</ul>
+<ul>-Add support for onboard tachometer.<br>-Create conditional colored display boxes<br>-Make coloring a changable class value.<br>-Create an object that is dispalyed on the GPS graph that represents the drop zones</ul>
