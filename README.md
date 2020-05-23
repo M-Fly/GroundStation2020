@@ -1,7 +1,7 @@
 # GroundStation 2020 Edition
 
 ## About
-<ul>This project was created by Franklin Volcic for the 2020 Advanced Class MX6 plane. The code is written in java, using the Processing IDE. A java file is included for running the code in Eclipse.<br><br><b>Revisions</b><br></b>
+<ul>This project was created by Franklin Volcic for the 2020 Advanced Class MX6 plane. The code is written in Processing, using the Processing IDE. A java file is included for running the code in Eclipse.<br><br><b>Revisions</b><br></b>
  -Version 1.00: 5/22/2020</ul>
 
 ## Instal Information
