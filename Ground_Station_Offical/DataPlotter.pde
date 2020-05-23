@@ -18,16 +18,17 @@ class dataPlotter{
     //Default constructor for the data plotter
     public dataPlotter(int precision){
       data = new float[precision];
-      dataSize = precision;
-      dataMax = new float[2];
+      dataSize = precision;//How many data points there are
+      dataMax = new float[2];//the maximum value that has occured on the graph
       dataMax[0] = 0;
       dataMax[1] = 0;
-      dataMin = new float[2];
+      dataMin = new float[2];//The minimum value that has occured in the data
       dataMin[0] = 0;
       dataMin[1] = 0;
    }
   
   
+   //This function adds a new data point into the data, and delets the oldest data
    void updateData(float datum){
      
       //This adds the element into the graph
