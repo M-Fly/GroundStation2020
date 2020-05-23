@@ -1,11 +1,11 @@
 class Button{
   
-  private float xPos, yPos, xSize, ySize; 
-  private color buttonCol; 
-  private String buttonText;
-  private float textSize = 10;
-  private boolean eventTriggered = false;  
-  private boolean pmousePressed = false;
+  private float xPos, yPos, xSize, ySize; //Button position information
+  private color buttonCol;//The color of the button
+  private String buttonText;//The text that is shown within the button
+  private float textSize = 10;//Do not change... Text is automatically sized based on text
+  private boolean eventTriggered = false;//Is true if the button is pressed
+  private boolean pmousePressed = false;//The past click state of the button
   
   
   //Constructor with custom coloring
@@ -20,6 +20,8 @@ class Button{
   
   //This displays the button on the screen
   void displayButton(){
+  
+    //The box that the button shows up in
     stroke(0);
     strokeWeight(2);
     fill(buttonCol);
@@ -28,7 +30,7 @@ class Button{
     //Recolor button if the button was pressed
     if(mousePressed && mouseX > xPos && mouseX < xPos + xSize && mouseY > yPos && mouseY < yPos + ySize){
      noStroke();
-     fill(0,0,0,50);
+     fill(0,0,0,50);//Opaque
      rect(xPos, yPos, xSize, ySize);
     }
   
