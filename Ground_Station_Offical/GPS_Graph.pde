@@ -1,5 +1,7 @@
+import org.apache.commons.math3.analysis.function.*;
+
 class GPSgraph{
- 
+   
   //The length of the displayed gps tail
   private float tailLength; 
   
@@ -11,14 +13,13 @@ class GPSgraph{
   private int offset = 0;
   
   //The data the stores where the graph is positioned
-  private float longStart; 
-  private float longEnd; 
-  private float latStart; 
-  private float latEnd; 
+  private double longStart; 
+  private double longEnd; 
+  private double latStart; 
+  private double latEnd; 
   
-  //These values are all used to calculate the velocity of the plane. 
-  //This will take 2 longitude and latitude values, and also take the difference in time between the two values.
-  //This will allow conversion from change in gps coordinates to meters per second. 
+  
+  //This information is stored for calculating things such as plane heading and speed
   private double longitude;
   private double latitude;
   private double platitude;
@@ -30,12 +31,8 @@ class GPSgraph{
   private double earthRadius; 
   
   
-  
-  //The drop predictor that calculates where the plane is.
-  PredictionAlgorithmEuler dropPredictor;
-  
   //Default Constructor
-  GPSgraph(float longStart, float longEnd, float latStart, float latEnd, float tailLength){
+  GPSgraph(double longStart, double longEnd, double latStart, double latEnd, float tailLength){
     this.tailLength = tailLength; 
     tailX = new double[(int)tailLength]; 
     tailY = new double[(int)tailLength]; 
@@ -43,25 +40,18 @@ class GPSgraph{
     this.longEnd = longEnd; 
     this.latStart = latStart; 
     this.latEnd = latEnd; 
-    this.longitude = longStart; 
-    this.latitude = latStart; 
-    this.plongitude = longStart; 
-    this.platitude = latStart; 
-    this.timeDifference = 1; 
-    this.earthRadius = 6371000; //Mean earth radius
-     dropPredictor = new PredictionAlgorithmEuler();
   }
   
   
   //Update the gps data with the lat and long data
   void updatePosition(double longData, double latData){
-    this.plongitude = this.longitude; 
-    this.platitude = this.latitude; 
-    this.longitude = longData; 
-    this.latitude = latData; 
-    this.pMillis = this.currentMillis; 
-    this.currentMillis = millis();
-    this.timeDifference = currentMillis - pMillis;
+    pMillis = currentMillis;
+    currentMillis = millis();
+    
+    plongitude = longitude; 
+    platitude = latitude; 
+    longitude = longData; 
+    latitude = latData; 
     
     tailX[offset] = longData;  
     tailY[offset] = latData;
@@ -81,52 +71,27 @@ class GPSgraph{
    
    //This displays the tail in the graph
    for(int i = 1; i < tailLength; i++){
-     float mappedLong1 = map((float)tailX[(int)getCircularIndex(iter)], (float)longStart,(float) longEnd, (float)xPos, (float)(xPos + xSize));
-     float mappedLat1 = map((float)tailY[(int)getCircularIndex(iter)],(float) latStart,(float) latEnd,(float) yPos, (float)(yPos + ySize));
-     float mappedLong2 = map((float)tailX[(int)getCircularIndex(iter - 1)], (float)longStart, (float)longEnd, (float)xPos,(float)( xPos + xSize));
-     float mappedLat2 = map((float)tailY[(int)getCircularIndex(iter - 1)],(float) latStart,(float) latEnd, (float)yPos,(float)( yPos + ySize));
+     double mappedLong1 = Map(tailX[(int)getCircularIndex(iter)], longStart, longEnd, xPos, xPos + xSize);
+     double mappedLat1 = Map(tailY[(int)getCircularIndex(iter)], latStart, latEnd, yPos, yPos + ySize);
+     double mappedLong2 = Map(tailX[(int)getCircularIndex(iter - 1)], longStart, longEnd, xPos, xPos + xSize);
+     double mappedLat2 = Map(tailY[(int)getCircularIndex(iter - 1)], latStart, latEnd, yPos, yPos + ySize);
      iter--;
-     line(mappedLong1, mappedLat1, mappedLong2, mappedLat2);
+     line((float)mappedLong1, (float)mappedLat1,(float) mappedLong2,(float) mappedLat2);
    }
+   //println("tail x:" + tailX[(int)getCircularIndex(offset-1)]);
+   double mappedLong = Map(tailX[(int)getCircularIndex(offset-1)], longStart, longEnd, xPos, xPos + xSize);
+   double mappedLat = Map(tailY[(int)getCircularIndex(offset-1)], latStart, latEnd, yPos, yPos + ySize);
    
-   float mappedLong = map(tailX[(int)getCircularIndex(offset-1)], longStart, longEnd, xPos, xPos + xSize);
-   float mappedLat = map(tailY[(int)getCircularIndex(offset-1)], latStart, latEnd, yPos, yPos + ySize);
+   //println("mapped tail x:" + mappedLong);
    float minDim = xSize < ySize ? xSize : ySize;
    stroke(0);
    strokeWeight(1);
    fill(#C88ED8);
-   ellipse(mappedLong, mappedLat, minDim / 25, minDim/25);
+   ellipse((float)mappedLong, (float)mappedLat, minDim / 25, minDim/25);
    
  }
   
   
-  //This displays the predicted drop location of the footballs
-  void displayPredictedDropLocation(float altitude, double xPos, double yPos, double xSize, double ySize){
-    
-      //These are the position relative to the upper left hand corner of the graph
-      float yDistance = calculateDistanceLatLong(latStart, longStart, latitude, longStart); //<>//
-      float xDistance = calculateDistanceLatLong(latStart, longStart, latStart, longitude); //<>//
-      
-      PVector pos = new PVector(xDistance, yDistance, altitude);  //<>//
-      
-      PVector finalPos = dropPredictor.PredictionIntegrationFunction(pos, this.getGPSVelocity(), new PVector(0,0,0));
-      
-      //The distance in meters of the feild from start to finish as a whole. 
-      float longDistance = calculateDistanceLatLong(latStart, longStart, latStart, longEnd);
-      float latDistance = calculateDistanceLatLong(latStart, longStart, latEnd, longStart);
-      
-      float mappedxPos = map(finalPos.x, 0, longDistance, xPos, xPos + xSize);
-      float mappedyPos = map(finalPos.y, 0, latDistance, yPos, yPos + ySize);
-      
-       float minDim = xSize < ySize ? xSize : ySize;
-      
-      fill(255,0,0);
-      ellipse(mappedxPos, mappedyPos,minDim / 25, minDim/25);
-    
-  }
-  
-  
-  //Returns the index of a peice of data, even if the indicated index is past the length of the dataset
   private float getCircularIndex(int index){
     if(index >= tailLength){
       return index % tailLength;
@@ -139,54 +104,12 @@ class GPSgraph{
     return index; 
   }
   
-  //This allows us to set what the earths radius is.
-  void setEarthRadius(float radius){
-   earthRadius = radius;  
+  
+  //This displays the predicted drop location of the objects.
+  void displayDropPrediction(float alt, double GPSSpeed, float xPos, float yPos, float xSize, float ySize){
+    
   }
   
-  //Returns a velocity vector that that detemines the planes heading. 
-  private PVector getGPSVelocity(){
-    
-    float distance = calculateDistanceLatLong(this.platitude, this.plongitude, this.latitude, this.longitude);
-    
-    float dtSeconds = timeDifference / 1000; 
-    
-    float velocity = distance / dtSeconds; 
-    
-    PVector vel_vec = new PVector(longitude - plongitude, latitude - platitude); 
-    
-    vel_vec.normalize();
-    
-    vel_vec.mult(velocity); 
-    
-    return new PVector(vel_vec.x, vel_vec.y, 0);  
-  }
-  
-  
-  //returns the distance in meters between two lat and long coordinates
-  //Using the haversine formula
-  //a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)
-  //c = 2 ⋅ atan2( √a, √(1−a) )
-  //d = R ⋅ c
-  
-  private float calculateDistanceLatLong(float lat1, float lon1, float lat2, float lon2){
-    float phi1 = lat1 * PI/180; // phi, lambda in radians
-    float phi2 = lat2 * PI/180;
-    float dphi = (lat2-lat1) * PI/180;
-    float dlambda = (lon2-lon1) * PI/180;
-    
-    float a =  sin(dphi/2) * sin(dphi/2) +
-               cos(phi1) * cos(phi2) *
-               sin(dlambda/2) * sin(dlambda/2);
-               
-    float c = 2 * atan2(sqrt(a), sqrt(1-a));
-    
-    return c * earthRadius; 
-  }
-  
-  float getGroundSpeed(){
-   return this.getGPSVelocity().mag(); 
-  }
   
   
 };

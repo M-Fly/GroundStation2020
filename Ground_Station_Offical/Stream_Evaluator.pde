@@ -3,8 +3,8 @@ class Evaluator{
   private float airSpeed; 
   private float alt;
   private float tach;
-  private float latitude; 
-  private float longitude; 
+  private double latitude; 
+  private double longitude; 
   
   //Default Constructor
   Evaluator(){}
@@ -53,11 +53,11 @@ class Evaluator{
    return tach; 
   }
   
-  float getLatitude(){
+  double getLatitude(){
    return latitude;  
   }
   
-  float getLongitude(){
+  double getLongitude(){
    return longitude;  
   }
 
@@ -71,8 +71,8 @@ class Evaluator{
   void readBMESSAGE(String[] BMESSAGE){
    
    if(BMESSAGE.length >= 10){ 
-   latitude = float(BMESSAGE[4]); 
-   longitude = float(BMESSAGE[5]); 
+   latitude = Double.parseDouble(BMESSAGE[4]); 
+   longitude = Double.parseDouble(BMESSAGE[5]); 
    }
   }
 

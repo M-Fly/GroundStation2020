@@ -1,3 +1,6 @@
+import org.apache.commons.math3.analysis.function.*;
+
+//This class is for 
 class Vector{
  
   public double x;
@@ -12,19 +15,12 @@ class Vector{
   }
   
   double mag(){
-     return sq_rt(x*x + y*y + z*z); 
+     return Math.sqrt(x*x + y*y + z*z); 
   }
   
-  
-  private double sq_rt(double n){
-    double testNum = n/2;
-    
-    for(int i = 0; i < 100; i ++){
-       testNum = (1/2)*(testNum + n / testNum);
-    }
-    
-    return testNum;
+  void mult(double n){
+    x*=n;
+    y*=n;
+    z*=n;
   }
-  
-  
 }

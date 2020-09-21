@@ -132,23 +132,7 @@ class Preferences{
  }
  
   double LONGEND(){
-   return Double.parseDouble((parsedData[26]));  
- }
- 
- double EARTHRADIUS(){
-   return Double.parseDouble(parsedData[27]); 
- }
- 
- float DECIMALPRECISIONGPS(){
-    return float(parsedData[28]); 
- }
- 
- float DECIMALPRECISIONALT(){
-    return float(parsedData[28]); 
- }
- 
- float DECIMALPRECISIONAIRSPEED(){
-    return float(parsedData[28]); 
+   return Double.parseDouble(parsedData[26]);  
  }
 
 };
