@@ -119,20 +119,36 @@ class Preferences{
   return parsedData;  
  }
 
-   float LATSTART(){
-   return float(parsedData[23]);  
+   double LATSTART(){
+   return Double.parseDouble(parsedData[23]);  
  }
  
-  float LATEND(){
-   return float(parsedData[24]);  
+  double LATEND(){
+   return Double.parseDouble(parsedData[24]);  
  }
  
-  float LONGSTART(){
-   return float(parsedData[25]);  
+  double LONGSTART(){
+   return Double.parseDouble(parsedData[25]);  
  }
  
-  float LONGEND(){
-   return float(parsedData[26]);  
+  double LONGEND(){
+   return Double.parseDouble((parsedData[26]));  
+ }
+ 
+ double EARTHRADIUS(){
+   return Double.parseDouble(parsedData[27]); 
+ }
+ 
+ float DECIMALPRECISIONGPS(){
+    return float(parsedData[28]); 
+ }
+ 
+ float DECIMALPRECISIONALT(){
+    return float(parsedData[28]); 
+ }
+ 
+ float DECIMALPRECISIONAIRSPEED(){
+    return float(parsedData[28]); 
  }
 
 };

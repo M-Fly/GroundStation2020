@@ -66,10 +66,12 @@ void setup(){
  altGraph = new dataPlotter((int)preferences.altGraphDataPoints()); 
  
  //For the GPS Graph
- gpsplot = new GPSgraph(preferences.LONGSTART(), preferences.LONGEND(), preferences.LATSTART(), preferences.LATEND(), preferences.GPSTailLength()); //<>//
+ gpsplot = new GPSgraph(preferences.LONGSTART(), preferences.LONGEND(), preferences.LATSTART(), preferences.LATEND(), preferences.GPSTailLength());
+ 
+ gpsplot.setEarthRadius(preferences.EARTHRADIUS());
  
  //Create a dropdown menu with all the available serial ports
- dropdownSerial = new Dropdown(width/50.0,height/50.0,width/10.0,height/20.0,color(#D3D3D3),"COMS"); //<>//
+ dropdownSerial = new Dropdown(width/50.0,height/50.0,width/10.0,height/20.0,color(#D3D3D3),"COMS");
  String[] serialOptions = new String[Serial.list().length+1];
  for(int i = 0;i < Serial.list().length; i++){
   serialOptions[i] = Serial.list()[i]; //This creates a list that is fed to the dropdown menu
@@ -106,7 +108,8 @@ void setup(){
  flightData.addElement("AIRSPEED:", "");
  flightData.addElement("LAT","");
  flightData.addElement("LONG", "");
- 
+ flightData.addElement("GROUND SPEED", "");
+  
  //The drop data table
  //TODO: Implment the data streams that actually deal with this data
  dropData = new dataDisplay(); 
@@ -177,7 +180,12 @@ float alt = 100;
 float airSpeed = 100; 
 float latitude = 100;
 float longitude = 100; 
-
+float plat = 0;
+float plong = 0;
+float pplat = 0;
+float pplong = 0;
+float palt;
+float ppalt;
 void draw(){
    
   //If a port is selected and its not the simulated data port
@@ -197,6 +205,7 @@ void draw(){
      flightData.updateElementData(str(dstreamEval.getAirspeed()).length() > 6 ? str(dstreamEval.getAirspeed()).substring(0,6) : str(dstreamEval.getAirspeed()),1);
      flightData.updateElementData(str(dstreamEval.getLatitude()).length() > 6 ? str(dstreamEval.getLatitude()).substring(0,6) : str(dstreamEval.getLatitude()),2);
      flightData.updateElementData(str(dstreamEval.getLongitude()).length() > 6 ? str(dstreamEval.getLongitude()).substring(0,6) : str(dstreamEval.getLongitude()),3);
+     flightData.updateElementData(str(gpsplot.getGroundSpeed()).length() > 6 ? str(gpsplot.getGroundSpeed()).substring(0,6) : str(gpsplot.getGroundSpeed()),4);
      altGraph.updateData(dstreamEval.getAlt());
      
      //Update the gps data with the new serial data
@@ -213,19 +222,52 @@ void draw(){
       //If the user selected sim data.
       if(sim)
       {
-       flightData.updateElementData(str(alt).length() > 6 ? str(alt).substring(0,6) : str(alt),0);
-       flightData.updateElementData(str(airSpeed).length() > 6 ? str(airSpeed).substring(0,6) : str(airSpeed),1);
-       flightData.updateElementData(str(latitude).length() > 6 ? str(latitude).substring(0,6) : str(latitude),2);
-       flightData.updateElementData(str(longitude).length() > 6 ? str(longitude).substring(0,6) : str(longitude),3);
+       flightData.updateElementData(str(alt).length() > preferences.DECIMALPRECISIONALT() ? str(alt).substring(0,(int)preferences.DECIMALPRECISIONALT()) : str(alt),0);
+       flightData.updateElementData(str(airSpeed).length() > (int)preferences.DECIMALPRECISIONAIRSPEED() ? str(airSpeed).substring(0,(int)preferences.DECIMALPRECISIONAIRSPEED()) : str(airSpeed),1);
+       flightData.updateElementData(str(latitude).length() > (int)preferences.DECIMALPRECISIONGPS() ? str(latitude).substring(0,(int)preferences.DECIMALPRECISIONGPS()) : str(latitude),2);
+       flightData.updateElementData(str(longitude).length() > (int)preferences.DECIMALPRECISIONGPS() ? str(longitude).substring(0,(int)preferences.DECIMALPRECISIONGPS()) : str(longitude),3);
+       flightData.updateElementData(str(gpsplot.getGroundSpeed()).length() > 6 ? str(gpsplot.getGroundSpeed()).substring(0,6) : str(gpsplot.getGroundSpeed()),4);
        altGraph.updateData(alt);
        gpsplot.updatePosition(longitude, latitude);
 
        //Randomizes the test data
-       alt+=random(-0.2,0.2);
+       alt=sin((float)millis()/500) + 100 + palt;
        airSpeed+=random(-0.2,0.2);
-       latitude += random(-0.2, 0.2);
-       longitude += random(-0.2,0.2);
-      }
+       
+       if(!(mousePressed && mouseX > 500)){
+       latitude = sin((float)millis()/5000)/120 + 100;
+       longitude = cos((float)millis()/5000)/120 + 100;
+       }
+       
+       else
+       {
+        latitude += 0.00001; 
+        longitude += 0.00001; 
+       }
+       
+    //   plat += pplat;
+      
+    if(mousePressed && mouseX < 300)
+    palt += mouseY - pmouseY;
+    
+      // plong += pplong; 
+       //pplat += random(-0.0002,0.0002);
+       //pplong += random(-0.0002,0.0002);
+       println(millis());
+       pplat = sin(millis()/5000)/10000;
+       pplong = cos(millis()/5000)/10000;
+       
+       
+       
+       if(mousePressed){
+      //  latitude = 100;
+       // longitude = 100;
+       // pplat = 0;
+       // pplong = 0;
+        //plat = 0;
+        //plong = 0;
+       }
+  }
  
   //Set background to white
   background(255);
@@ -241,8 +283,9 @@ void draw(){
  
   //This Displays the plots where they are supposed to be positioned
   gpsplot.displayLatLongGraph(GPSGraphTablet.xPosition(), GPSGraphTablet.yPosition(), GPSGraphTablet.xSize(), GPSGraphTablet.ySize());
+  gpsplot.displayPredictedDropLocation(alt * 0.3048, GPSGraphTablet.xPosition(), GPSGraphTablet.yPosition(), GPSGraphTablet.xSize(), GPSGraphTablet.ySize());
   altGraph.displayGraphMovingAxis(altGraphTablet.xPosition(), altGraphTablet.yPosition(), altGraphTablet.xSize(), altGraphTablet.ySize());
-  flightData.display(flightInfoTablet.xPosition(), flightInfoTablet.yPosition(), flightInfoTablet.xSize(), flightInfoTablet.ySize(),2,2);
+  flightData.display(flightInfoTablet.xPosition(), flightInfoTablet.yPosition(), flightInfoTablet.xSize(), flightInfoTablet.ySize(),2,3);
   dropData.display(dropInfoTablet.xPosition(), dropInfoTablet.yPosition(), dropInfoTablet.xSize(), dropInfoTablet.ySize(), 1, 2);
   
   //The dropdown menu for selecting a port
