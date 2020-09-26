@@ -1,5 +1,6 @@
 import org.apache.commons.math3.analysis.function.*;
 
+//This class is for 
 class Vector{
  
   public double x;
