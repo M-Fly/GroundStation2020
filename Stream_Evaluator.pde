@@ -1,11 +1,12 @@
 class Evaluator{
 
-  private float airSpeed; 
-  private float alt;
-  private float tach;
-  private double latitude; 
-  private double longitude; 
-  
+  private float airSpeed = 0; 
+  private float alt = 0;
+  private float tach = 0;
+  private double latitude = 0; 
+  private double longitude = 0; 
+  private double gpsSpeed = 0; 
+  private double gpsAlt = 0; 
   //Default Constructor
   Evaluator(){}
   
@@ -49,6 +50,10 @@ class Evaluator{
    return alt;  
   }
   
+  float getAltFT(){
+   return alt * 3.28;  
+  }
+  
   float getTach(){
    return tach; 
   }
@@ -61,9 +66,18 @@ class Evaluator{
    return longitude;  
   }
 
+  double getGpsSpeed(){
+    return (gpsSpeed / 1000)* 1.151;  
+  }
+  
+  double getGpsAlt(){
+    return gpsAlt;  
+  }
+  
+  
   void readAMESSAGE(String[] AMESSAGE){
    if(AMESSAGE.length>=9){
-    alt = float(AMESSAGE[3]);
+    alt = float(AMESSAGE[3])  /* *3.28*/;
    airSpeed = float(AMESSAGE[4]);
    }
   }
@@ -78,7 +92,8 @@ class Evaluator{
    if(BMESSAGE.length >= 10){ 
    latitude = Double.parseDouble(BMESSAGE[4].substring(0,2) + "."+BMESSAGE[4].substring(2)); 
    longitude = Double.parseDouble(BMESSAGE[5].substring(0,3) + "."+BMESSAGE[5].substring(3)); 
-
+   gpsSpeed = Double.parseDouble(BMESSAGE[6]); 
+   gpsAlt = Double.parseDouble(BMESSAGE[8]);
    }
   }
 

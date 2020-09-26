@@ -31,13 +31,13 @@ class DataStream {
        //println(); 
     }
     if (message!=null) {
-      if (message.charAt(2) == 'A')
+      if (message.charAt(0) == 'A')
         AMESSAGE = message;
-      else if (message.charAt(2) == 'B')
+      else if (message.charAt(0) == 'B')
         BMESSAGE = message; 
-      else if (message.charAt(2) == 'C')
+      else if (message.charAt(0) == 'C')
         CMESSAGE = message; 
-      else if (message.charAt(2) == 'D')
+      else if (message.charAt(0) == 'D')
         DMESSAGE = message;
     }
   }

@@ -1,4 +1,4 @@
- //<>//
+                                                    //<>//
 
 
 
@@ -106,10 +106,13 @@ void setup() {
   //The data that is displayed: Altitude, Airspeed, Latitude, Longitude
   //TODO: Add a reading for an onboard tachometer
   flightData = new dataDisplay();
-  flightData.addElement("ALT:", "");
+  flightData.addElement("ALT(ft)", "");
+  flightData.addElement("ALT(m)", "");
   flightData.addElement("AIRSPEED:", "");
   flightData.addElement("LAT", "");
   flightData.addElement("LONG", "");
+  flightData.addElement("GPS SPEED(mph)" , ""); 
+  flightData.addElement("GPS ALT", ""); 
 
   //The drop data table
   //TODO: Implment the data streams that actually deal with this data
@@ -198,12 +201,15 @@ void draw() {
 
     //Update the data. This gets the data from the dstreamEvaluator.
     //This also checks how long the data is. The requires that no data is longer than 6 characters in lengths
-    flightData.updateElementData(str(dstreamEval.getAlt()).length() > 6 ? str(dstreamEval.getAlt()).substring(0, 6) : str(dstreamEval.getAlt()), 0);
-    flightData.updateElementData(str(dstreamEval.getAirspeed()).length() > 6 ? str(dstreamEval.getAirspeed()).substring(0, 6) : str(dstreamEval.getAirspeed()), 1);
+    flightData.updateElementData(str(dstreamEval.getAlt()).length() > 6 ? str(dstreamEval.getAlt()).substring(0, 6) : str(dstreamEval.getAlt()), 1);
+    flightData.updateElementData(str(dstreamEval.getAltFT()).length() > 6 ? str(dstreamEval.getAltFT()).substring(0, 6) : str(dstreamEval.getAltFT()), 0);
+    flightData.updateElementData(str(dstreamEval.getAirspeed()).length() > 6 ? str(dstreamEval.getAirspeed()).substring(0, 6) : str(dstreamEval.getAirspeed()), 2);
    // flightData.updateElementData(str((float)dstreamEval.getLatitude()).length() > 6 ? str((float)dstreamEval.getLatitude()).substring(0, 6) : str((float)dstreamEval.getLatitude()), 2);
     //flightData.updateElementData(str((float)dstreamEval.getLongitude()).length() > 6 ? str((float)dstreamEval.getLongitude()).substring(0, 6) : str((float)dstreamEval.getLongitude()), 3);
-    flightData.updateElementData(Double.toString(dstreamEval.getLatitude()), 2); 
-    flightData.updateElementData(Double.toString(dstreamEval.getLongitude()), 3); 
+    flightData.updateElementData(Double.toString(dstreamEval.getLatitude()), 3); 
+    flightData.updateElementData(Double.toString(dstreamEval.getLongitude()), 4); 
+    flightData.updateElementData(Double.toString(dstreamEval.getGpsSpeed()), 5); 
+    flightData.updateElementData(Double.toString(dstreamEval.getGpsAlt()), 6); 
     //flightData.updateElementData((dstream.getParsedBMESSAGE()[4]), 2);
     //flightData.updateElementData((dstream.getParsedBMESSAGE()[5]), 3);
     
@@ -259,7 +265,7 @@ void draw() {
   //This Displays the plots where they are supposed to be positioned
   gpsplot.displayLatLongGraph(GPSGraphTablet.xPosition(), GPSGraphTablet.yPosition(), GPSGraphTablet.xSize(), GPSGraphTablet.ySize());
   altGraph.displayGraphMovingAxis(altGraphTablet.xPosition(), altGraphTablet.yPosition(), altGraphTablet.xSize(), altGraphTablet.ySize());
-  flightData.display(flightInfoTablet.xPosition(), flightInfoTablet.yPosition(), flightInfoTablet.xSize(), flightInfoTablet.ySize(), 2, 2);
+  flightData.display(flightInfoTablet.xPosition(), flightInfoTablet.yPosition(), flightInfoTablet.xSize(), flightInfoTablet.ySize(), 4, 2);
   dropData.display(dropInfoTablet.xPosition(), dropInfoTablet.yPosition(), dropInfoTablet.xSize(), dropInfoTablet.ySize(), 1, 2);
 
   //The dropdown menu for selecting a port
