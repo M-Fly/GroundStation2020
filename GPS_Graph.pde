@@ -2,6 +2,11 @@ import org.apache.commons.math3.analysis.function.*;
 
 class GPSgraph {
 
+  //This is the distance calculator that will be used to evaluate the distance between two different lat and long coordinates. 
+  private DistanceCalculator dist_calc; 
+  private PredictionAlgorithmEuler drop_predictor; 
+  
+  
   //The length of the displayed gps tail
   private float tailLength; 
 
@@ -22,13 +27,10 @@ class GPSgraph {
   //This information is stored for calculating things such as plane heading and speed
   private double longitude;
   private double latitude;
-  private double platitude;
-  private double plongitude;
-  private double timeDifference;
-  private double pMillis;
-  private double currentMillis;
+  
+  private float xLength_meters; 
+  private float yLength_meters; 
 
-  private double earthRadius; 
 
 
   //Default Constructor
@@ -40,16 +42,18 @@ class GPSgraph {
     this.longEnd = longEnd; 
     this.latStart = latStart; 
     this.latEnd = latEnd;
+    
+    dist_calc = new DistanceCalculator(); 
+    drop_predictor = new PredictionAlgorithmEuler(); 
+    
+    this.xLength_meters = (float) dist_calc.distance(latStart, longStart, latStart, longEnd, "meters" ); 
+    this.yLength_meters = (float) dist_calc.distance(latStart, longStart, latEnd, longStart, "meters" ); 
   }
 
 
   //Update the gps data with the lat and long data
   void updatePosition(double longData, double latData) {
-    pMillis = currentMillis;
-    currentMillis = millis();
 
-    plongitude = longitude; 
-    platitude = latitude; 
     longitude = longData; 
     latitude = latData; 
 
@@ -88,6 +92,11 @@ class GPSgraph {
     strokeWeight(1);
     fill(#C88ED8);
     ellipse((float)mappedLong, (float)mappedLat, minDim / 25, minDim/25);
+    
+    fill(0); 
+    textAlign(CENTER, CENTER); 
+    textSize(10); 
+    text("longitude", xPos + xSize / 2, yPos + ySize + 10); 
   }
 
 
@@ -104,6 +113,31 @@ class GPSgraph {
 
 
   //This displays the predicted drop location of the objects.
-  void displayDropPrediction(float alt, double GPSSpeed, float xPos, float yPos, float xSize, float ySize) {
+  void displayDropPrediction(float alt, double GPSSpeed, double heading, float xPos, float yPos, float xSize, float ySize) {
+    double metersX = dist_calc.distance(latStart, longStart, latStart, longitude, "meters"); 
+    double metersY = dist_calc.distance(latStart, longStart, latitude, longStart, "meters");
+    
+   Vector position = new Vector(metersX, metersY, alt); 
+   
+   heading -= Math.PI/2; 
+   
+   heading = Math.PI * 2 - heading; 
+   
+   double x_vel = GPSSpeed * Math.sin( heading ); 
+   double y_vel = GPSSpeed * Math.cos( heading ); 
+      
+   Vector vel = new Vector(x_vel,y_vel,0); 
+   
+   Vector wind = new Vector(0,0,0); 
+   Vector dropLocation = drop_predictor.PredictionIntegrationFunction(position, vel, wind); 
+   
+   float drop_x = map((float)dropLocation.x, 0, xLength_meters,xPos, xPos+xSize);  
+   float drop_y = map((float)dropLocation.y, 0, yLength_meters,yPos, yPos+ySize); 
+   
+   float minDim = xSize < ySize ? xSize : ySize;
+   
+   fill(#E30B0B); 
+   ellipse(drop_x, drop_y, minDim/25, minDim/25); 
+   
   }
 };

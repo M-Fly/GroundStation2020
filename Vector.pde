@@ -7,6 +7,12 @@ class Vector{
   public double y;
   public double z;
   
+  Vector(double x, double y, double z){
+    this.x=x; 
+    this.y=y; 
+    this.z=z; 
+  }
+  
   void normalize(){
      double mag = this.mag(); 
      x = x / mag;
@@ -22,5 +28,9 @@ class Vector{
     x*=n;
     y*=n;
     z*=n;
+  }
+  
+  double dot(Vector lhs){
+   return (x * lhs.x) + (y * lhs.x) + (z * lhs.z);  
   }
 }

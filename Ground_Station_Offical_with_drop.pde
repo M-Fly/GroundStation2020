@@ -1,7 +1,12 @@
-                                                    //<>//
-
-
-
+//     __  ___      ________         _________       __    __     ______            __             __   _____       ______
+//    /  |/  /     / ____/ /_  __   / ____/ (_)___ _/ /_  / /_   / ____/___  ____  / /__________  / /  / ___/____  / __/ /__      ______ _________
+//   / /|_/ /_____/ /_  / / / / /  / /_  / / / __ `/ __ \/ __/  / /   / __ \/ __ \/ __/ ___/ __ \/ /   \__ \/ __ \/ /_/ __/ | /| / / __ `/ ___/ _ \
+//  / /  / /_____/ __/ / / /_/ /  / __/ / / / /_/ / / / / /_   / /___/ /_/ / / / / /_/ /  / /_/ / /   ___/ / /_/ / __/ /_ | |/ |/ / /_/ / /  /  __/
+// /_/  /_/     /_/   /_/\__, /  /_/   /_/_/\__, /_/ /_/\__/   \____/\____/_/ /_/\__/_/   \____/_/   /____/\____/_/  \__/ |__/|__/\__,_/_/   \___/
+//                      /____/             /____/
+//                             //<>//
+// 
+import org.apache.commons.math3.analysis.function.*;
 
 import processing.serial.*; 
 String[] baudRates = {"300", "1200", "1800", "2400", "4800", "7200", "9600", "14400", "19200", "31250", "38400", "56000", "57600", "1152000", "5000000"}; 
@@ -106,14 +111,15 @@ void setup() {
   //The data that is displayed: Altitude, Airspeed, Latitude, Longitude
   //TODO: Add a reading for an onboard tachometer
   flightData = new dataDisplay();
-  flightData.addElement("ALT(ft)", "");
-  flightData.addElement("ALT(m)", "");
+  flightData.addElement(" ALT(ft) ", "");
+  flightData.addElement(" ALT(m) ", "");
   flightData.addElement("AIRSPEED:", "");
-  flightData.addElement("LAT", "");
-  flightData.addElement("LONG", "");
+  flightData.addElement("    LAT    ", "");
+  flightData.addElement("   LONG  ", "");
   flightData.addElement("GPS SPEED(mph)" , ""); 
-  flightData.addElement("GPS ALT", ""); 
-
+  flightData.addElement("  GPS ALT  ", ""); 
+  flightData.addElement("GPS Heading", ""); 
+  
   //The drop data table
   //TODO: Implment the data streams that actually deal with this data
   dropData = new dataDisplay(); 
@@ -184,6 +190,8 @@ float alt = 100;
 float airSpeed = 100; 
 double latitude = 100;
 double longitude = 100; 
+double heading = 0; 
+
 
 void draw() {
 
@@ -210,6 +218,7 @@ void draw() {
     flightData.updateElementData(Double.toString(dstreamEval.getLongitude()), 4); 
     flightData.updateElementData(Double.toString(dstreamEval.getGpsSpeed()), 5); 
     flightData.updateElementData(Double.toString(dstreamEval.getGpsAlt()), 6); 
+    flightData.updateElementData(Double.toString(dstreamEval.getHeading()), 7);
     //flightData.updateElementData((dstream.getParsedBMESSAGE()[4]), 2);
     //flightData.updateElementData((dstream.getParsedBMESSAGE()[5]), 3);
     
@@ -246,9 +255,23 @@ void draw() {
     alt=sin((float)millis()/500) + 100;
     airSpeed+=random(-0.2, 0.2);
 
-    latitude = sin((float)millis()/50)/120 + 100;
-    longitude = cos((float)millis()/50)/120 + 100;
-  }
+    double pLat = latitude; 
+    double pLong = longitude; 
+    
+    latitude = sin((float)millis()/500)/120 + 100;
+    longitude = cos((float)millis()/500)/120 + 100;
+  
+    heading = Math.atan2( (latitude - pLat) , (longitude - pLong) ); 
+    
+    Vector dheading = new Vector( (longitude - pLong) , (latitude - pLat) , 0); 
+    Vector north = new Vector( 0, 1, 0); 
+    
+    double angle = Math.atan2(dheading.y, dheading.x); 
+    heading = angle; 
+   // heading = heading < 0 ? heading + Math.PI : heading; 
+    
+    println(heading); 
+}
 
   //Set background to white
   background(255);
@@ -264,6 +287,9 @@ void draw() {
 
   //This Displays the plots where they are supposed to be positioned
   gpsplot.displayLatLongGraph(GPSGraphTablet.xPosition(), GPSGraphTablet.yPosition(), GPSGraphTablet.xSize(), GPSGraphTablet.ySize());
+  gpsplot.displayDropPrediction(alt, dstreamEval.getGpsSpeed_mps(), dstreamEval.getHeading(), GPSGraphTablet.xPosition(), GPSGraphTablet.yPosition(), GPSGraphTablet.xSize(), GPSGraphTablet.ySize());
+  
+  
   altGraph.displayGraphMovingAxis(altGraphTablet.xPosition(), altGraphTablet.yPosition(), altGraphTablet.xSize(), altGraphTablet.ySize());
   flightData.display(flightInfoTablet.xPosition(), flightInfoTablet.yPosition(), flightInfoTablet.xSize(), flightInfoTablet.ySize(), 4, 2);
   dropData.display(dropInfoTablet.xPosition(), dropInfoTablet.yPosition(), dropInfoTablet.xSize(), dropInfoTablet.ySize(), 1, 2);

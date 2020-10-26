@@ -1,3 +1,5 @@
+import org.apache.commons.math3.analysis.function.*;
+
 class Evaluator{
 
   private float airSpeed = 0; 
@@ -7,6 +9,8 @@ class Evaluator{
   private double longitude = 0; 
   private double gpsSpeed = 0; 
   private double gpsAlt = 0; 
+  private double GPS_COURSE = 0;
+  
   //Default Constructor
   Evaluator(){}
   
@@ -42,6 +46,11 @@ class Evaluator{
    this.longitude = lon;  
   }
   
+  
+  void setHeading(float heading){
+     this.GPS_COURSE = heading;  
+  }
+  
   float getAirspeed(){
    return airSpeed; 
   }
@@ -70,10 +79,17 @@ class Evaluator{
     return (gpsSpeed / 1000)* 1.151;  
   }
   
+  double getGpsSpeed_mps(){
+   return (gpsSpeed / 1000) * 0.51444; 
+  }
+  
   double getGpsAlt(){
     return gpsAlt;  
   }
   
+  double getHeading(){
+   return Math.toRadians(this.GPS_COURSE / 1000);  
+  }
   
   void readAMESSAGE(String[] AMESSAGE){
    if(AMESSAGE.length>=9){
@@ -93,6 +109,7 @@ class Evaluator{
    latitude = Double.parseDouble(BMESSAGE[4].substring(0,2) + "."+BMESSAGE[4].substring(2)); 
    longitude = Double.parseDouble(BMESSAGE[5].substring(0,3) + "."+BMESSAGE[5].substring(3)); 
    gpsSpeed = Double.parseDouble(BMESSAGE[6]); 
+   GPS_COURSE = Double.parseDouble(BMESSAGE[7]);
    gpsAlt = Double.parseDouble(BMESSAGE[8]);
    }
   }
